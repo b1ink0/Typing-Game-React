@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useStateContext } from "../context/StateContext";
+import song_1 from './media/2.mp3'
 
 export default function InputComponent() {
   const {
@@ -7,6 +8,16 @@ export default function InputComponent() {
     setCon_1,
     con_2,
     setCon_2,
+    con_4,
+    setCon_4,
+    con_5,
+    setCon_5,
+    temp,
+    setTemp,
+    temp_1,
+    setTemp_1,
+    temp_2,
+    setTemp_2,
     setCpm,
     setWpm,
     text,
@@ -16,15 +27,25 @@ export default function InputComponent() {
     time,
     setTime,
   } = useStateContext();
-
+  let con_6 = false
+  con_6 = true
+  const song = new Audio(song_1)
+  // if (con_6){
+  //   song.pause()
+  // }else if (!con_6){
+  //   song.play()
+  // }
+  // const song = document.getElementById('music')
   let tempTime = 0;
+  let tempTemp = 0;
+  document.addEventListener('DOMContentLoaded',()=>{})
   const handleInput = (e) => {
     setText(prevText => e.target.value);
     setCon_2((prevCon_1=> !prevCon_1));
   };
 
   useEffect(()=>{
-    console.log(con_1)
+    // console.log(con_1)
     if (!con_1) {
       if (con_2) {
         handleInputSpeed()
@@ -51,11 +72,54 @@ export default function InputComponent() {
     setWpm(prevWpm => Math.round(((text.length/5)/time)*60))
   }, [time]);
 
-  useEffect(() => {
-    console.log('cpm:',cpm, 'wpm:',wpm)
-    console.log(cpm)
-  },[cpm])
+  useEffect(()=>{
+      if (text.length > 0){
+          if (!con_4){
+              setCon_4(true)
+              setIntervalAutoPause()
+              console.log(song)
+          }
+      }
+  },[text])
 
+  useEffect(()=>{
+    console.log('temp:',temp)
+    setTemp_1(text.length)
+  },[temp])
+ 
+  useEffect(async()=>{
+        console.log('con:',temp_1,'===',text.length)
+        console.log(document.getElementById('music').paused)
+    if (temp_1 === text.length){
+      if(!document.getElementById('music').paused){
+        await document.getElementById('music').pause()
+      }
+      console.log('pause')
+    } else {
+      if(document.getElementById('music').paused){
+       await document.getElementById('music').play()
+      }
+      console.log('play')
+    }
+  },[temp_2])
+
+  const handleAutoPause = () => {
+      setTimeout(()=>{
+        setTemp_2(prevSetTemp_2 => prevSetTemp_2 + 1)
+      },500)    
+      setTimeout(()=>{
+        setTemp(prevTemp => prevTemp + 1  )
+        // console.log('temptemp',tempTemp)
+      },1000)
+  }
+
+  const setIntervalAutoPause = () =>{
+      if (!con_5){
+          console.log('con5')
+          setInterval(handleAutoPause, 1000)
+          setCon_5(true)
+      }
+  }
   return (
     <div>
       <input
@@ -68,6 +132,11 @@ export default function InputComponent() {
         <br/>
         WPM: {wpm || 0}
       </h4>
+      <div id='musicCon'>
+      <audio id='music' controls src={song_1}/>
+      </div>
+      <button onClick={()=>song.pause()}>pause</button>
+      <button onClick={()=>song.play()}>play</button>
     </div>
   );
 }
